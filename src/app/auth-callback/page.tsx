@@ -10,7 +10,13 @@ const AuthCallback = () => {
   const searchParams = useSearchParams();
   const origin = searchParams.get("origin");
 
-  const { data, isSuccess, isError, error } = trpc.authCallback.useQuery();
+  const { data, isSuccess, isError, error } = trpc.authCallback.useQuery(
+    undefined,
+    {
+      retry: true,
+      retryDelay: 500,
+    }
+  );
 
   useEffect(() => {
     if (isSuccess && data.success) {
