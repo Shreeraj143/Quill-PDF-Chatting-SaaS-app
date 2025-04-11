@@ -25,7 +25,8 @@ export const ourFileRouter = {
           key: file.key,
           name: file.name,
           userId: metadata.userId,
-          url: `https://uploadthing-prod.s3.us-west-2.amazonaws.con/${file.key}`,
+          // url: `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`,
+          url: `https://5nt2b85jdx.ufs.sh/f/${file.key}`,
           uploadStatus: "PROCESSING",
         },
       });
