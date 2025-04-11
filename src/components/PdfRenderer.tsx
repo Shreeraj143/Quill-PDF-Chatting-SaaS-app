@@ -4,7 +4,13 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
 import { Document, Page, pdfjs } from "react-pdf";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  ZoomInIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useResizeDetector } from "react-resize-detector";
 import { useState } from "react";
@@ -17,6 +23,14 @@ import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+
+import SimpleBar from "simplebar-react";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -31,6 +45,7 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
   const { width, ref } = useResizeDetector();
   const [numPages, setNumPages] = useState<number>();
   const [currPage, setCurrPage] = useState<number>(1);
+  const [scale, setScale] = useState<number>(1);
 
   const CustomPageValidator = z.object({
     page: z
@@ -106,28 +121,64 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+
+        <div className="space-x-2 z-30">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="gap-1.5" aria-label="zoom" variant={"ghost"}>
+                <ZoomInIcon className="h-4 w-4" />
+                {scale * 100}%
+                <ChevronDown className="h-3 w-3 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => setScale(0.5)}>
+                50%
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setScale(1)}>
+                100%
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setScale(1.5)}>
+                150%
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setScale(2)}>
+                200%
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setScale(2.5)}>
+                250%
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="flex-1 w-full max-h-screen">
-        <div className="" ref={ref}>
-          <Document
-            loading={
-              <div className="flex justify-center">
-                <Loader2 className="my-24 h-6 w-6 animate-spin" />
-              </div>
-            }
-            onLoadError={() =>
-              toast.error("Error loading PDF", {
-                description: "Please try again later",
-              })
-            }
-            onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-            file={url}
-            className="max-h-full"
-          >
-            <Page width={width ? width : 1} pageNumber={currPage} />
-          </Document>
-        </div>
+        <SimpleBar autoHide={false} className="max-h-[calc(100vh-10rem)]">
+          <div className="" ref={ref}>
+            <Document
+              loading={
+                <div className="flex justify-center">
+                  <Loader2 className="my-24 h-6 w-6 animate-spin" />
+                </div>
+              }
+              onLoadError={() =>
+                toast.error("Error loading PDF", {
+                  description: "Please try again later",
+                })
+              }
+              onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+              file={url}
+              className="max-h-full"
+            >
+              <Page
+                width={width ? width : 1}
+                pageNumber={currPage}
+                scale={scale}
+              />
+            </Document>
+          </div>
+        </SimpleBar>
       </div>
     </div>
   );
